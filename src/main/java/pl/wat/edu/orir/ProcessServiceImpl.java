@@ -1,13 +1,6 @@
 package pl.wat.edu.orir;
 import org.springframework.stereotype.Service;
-import org.yaml.snakeyaml.util.ArrayUtils;
-
 import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
-import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 @Service
@@ -51,46 +44,18 @@ public class ProcessServiceImpl implements ProcessService {
         long startTime = System.nanoTime();
 
         // Parallelism
-        // Set number of threads to Math.sqrt(partitionsCount)
-//        final int parallelism = (int)Math.sqrt(partitionsCount);
-//        ForkJoinPool forkJoinPool = null;
-//        try {
-//            forkJoinPool = new ForkJoinPool(parallelism);
-//            IntStream numbersStream = Arrays.stream(numbers).parallel();
-//
-//
-//            //numbersStream.forEach(data -> {forkJoinPool.submit()});
-//
-//            forkJoinPool.submit(() ->
-//                    numbersStream.forEach(data -> HistogramParallel.insertValueToPartitionParallel(data, partitions)));
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        } finally {
-//            if (forkJoinPool != null) {
-//                forkJoinPool.shutdown();
-//            }
-//        }
-
         IntStream numbersStream = Arrays.stream(numbers).parallel();
         numbersStream.forEach(data -> {
             HistogramParallel.insertValueToPartitionParallel(data, partitions);
-                    //System.out.println(data + " " + Thread.currentThread().getName()) ;
-        }
-        );
+                    //System.out.println(System.nanoTime() + " | " + data + " | " + Thread.currentThread().getName()) ;
+        });
 
         // end measuring time and convert to ms
         long endTime = System.nanoTime();
-        long duration = endTime - startTime;
-        duration = TimeUnit.SECONDS.convert(duration, TimeUnit.MILLISECONDS);
+        long duration = (endTime - startTime) / 1000000;
 
-        String result = "";
-        for(Partition partition: partitions)
-            result += partition.getName() + "\n";
-
-        result += "\n";
-        result = "Threads used: " + System.getProperty("java.util.concurrent.ForkJoinPool.common.parallelism") + '\n'
-                + "Time elapsed: " + duration + "ms\n\n\n" + result;
+        String result = "[Parallel Run]\n" + "Threads used: " + System.getProperty("java.util.concurrent.ForkJoinPool.common.parallelism") + '\n'
+                + "Time elapsed: " + duration + "ms\n\n\n";
 
         // draw histogram for each partition
         for(Partition partition: partitions)
@@ -98,6 +63,7 @@ public class ProcessServiceImpl implements ProcessService {
 
         return result;
     }
+
 
     @Override
     public String getSerialHistogram(Integer howManyNumbers) {
@@ -121,6 +87,7 @@ public class ProcessServiceImpl implements ProcessService {
         Partition[] partitions = new Partition[partitionsCount];
         for (int i=0; i < partitions.length; i++){
             partitions[i] = new Partition();
+
             partitions[i].setRange(h);
             if(i==0)
                 partitions[i].setMin(min);
@@ -140,16 +107,10 @@ public class ProcessServiceImpl implements ProcessService {
         }
 
         long endTime = System.nanoTime();
-        long duration = endTime - startTime;
-        duration = TimeUnit.SECONDS.convert(duration, TimeUnit.MILLISECONDS);
+        long duration = (endTime - startTime) / 1000000;
 
-        String result = "";
-        for(Partition partition: partitions)
-            result += partition.getName() + "\n";
-
-        result += "\n";
-        result = "Threads used: " + 1 + '\n'
-                + "Time elapsed: " + duration + "ms\n\n\n" + result;
+        String result = "[Serial Run]\n" + "Threads used: " + 1 + '\n'
+                + "Time elapsed: " + duration + "ms\n\n\n";
 
         // draw histogram for each partition
         for(Partition partition: partitions)

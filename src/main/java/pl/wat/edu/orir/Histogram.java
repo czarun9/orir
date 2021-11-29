@@ -1,7 +1,5 @@
 package pl.wat.edu.orir;
 
-import java.util.*;
-
 public class Histogram {
     public static int[] generateNumbers(int howMany){
         int[] numbers = new int[howMany];
