@@ -9,10 +9,10 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public String getParallelHistogram(Integer howManyNumbers) {
 
-        int[] numbers = HistogramParallel.generateNumbers(howManyNumbers);
+        int[] numbers = Histogram.generateNumbers(howManyNumbers);
 
         // 1. Count number of observations
-        int n = HistogramParallel.countObservations(numbers);
+        int n = Histogram.countObservations(numbers);
 
         // 2. Sort observations
         Arrays.sort(numbers);
@@ -59,7 +59,7 @@ public class ProcessServiceImpl implements ProcessService {
 
         // draw histogram for each partition
         for(Partition partition: partitions)
-            result += HistogramParallel.drawHistogramParallel(partition);
+            result += Histogram.drawHistogram(partition);
 
         return result;
     }
@@ -119,3 +119,5 @@ public class ProcessServiceImpl implements ProcessService {
         return result;
     }
 }
+
+
